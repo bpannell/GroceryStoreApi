@@ -31,7 +31,7 @@ namespace GroceryStoreAPI.Controllers
         {
             try
             {
-                _logger.LogInformation("Entering AllCustomers Call");
+                _logger.LogDebug("Request For AllCustomers");
                 return Ok(await _customerService.ListAllCustomers());
             }
             catch (Exception e)
@@ -46,6 +46,7 @@ namespace GroceryStoreAPI.Controllers
         {
             try
             {
+                _logger.LogDebug($"Request For Get Customer with id: {id}");
                 return Ok(await _customerService.GetCustomer(id));
             }
             catch (KeyNotFoundException nfr)
@@ -65,6 +66,7 @@ namespace GroceryStoreAPI.Controllers
         {
             try
             {
+                _logger.LogDebug($"Request To Add Customer with name: {name}");
                 return Ok(await _customerService.AddCustomer(name));
             }
             catch (Exception e)
@@ -79,6 +81,7 @@ namespace GroceryStoreAPI.Controllers
         {
             try
             {
+                _logger.LogDebug($"Request To Update Customer with id: {customer.Id} and name: {customer.Name}");
                 return Ok(await _customerService.UpdateCustomer(customer));
             }
             catch (Exception e)

@@ -23,7 +23,7 @@ namespace GroceryStoreAPI.External
         public async Task<List<Customer>> ListAllCustomers()
         {
             var database = await _databaseRepository.ReadDatabase();
-
+            _logger.LogDebug($"Returned {database?.Customers?.Count} Customers");
             return database?.Customers;
         }
 
@@ -34,8 +34,10 @@ namespace GroceryStoreAPI.External
 
             if (customer == null)
             {
+                _logger.LogWarning($"No Customer was found for id: {id}");
                 throw new KeyNotFoundException("There is no customer with that given Id");
             }
+            _logger.LogDebug($"Customer {customer} was found with id: {id}");
             return customer;
         }
 
@@ -50,6 +52,7 @@ namespace GroceryStoreAPI.External
             }
             if (database.Customers == null || database.Customers?.Count == 0)
             {
+                _logger.LogDebug($"No Customers were found in the database, so adding {name} as the first");
                 database.Customers = new List<Customer>();
                 customer = new Customer(1, name);
                 database.Customers.Add(customer);
@@ -57,12 +60,14 @@ namespace GroceryStoreAPI.External
             else
             {
                 customer = new Customer(database.Customers.Max(x => x.Id) + 1, name);
+                _logger.LogDebug($"Customer {name} is being added to the List with id {customer.Id}");
                 database.Customers.Add(customer);
             }
 
             try
             {
                 await _databaseRepository.SaveDatabase(database);
+                _logger.LogDebug($"Customer {customer} added to the database");
                 return customer;
             }
             catch (Exception e)
@@ -83,19 +88,22 @@ namespace GroceryStoreAPI.External
             var customers = database.Customers;
             if (customers == null || customers.Count == 0)
             {
+                _logger.LogWarning($"{customer.Id} does not exist in the database to update");
                 throw new Exception("There are currently no Customers to update");
             }
             if (!customers.Any(x => x.Id == customer.Id))
             {
+                _logger.LogWarning($"{customer.Id} does not exist in the database to update");
                 throw new Exception($"No Customer with id: {customer.Id} currently exists to update");
             }
             customers.FirstOrDefault(x => x.Id == customer.Id)?.UpdateCustomer(customer);
-
+            _logger.LogDebug($"Customer {customer.Id} is having the name updated to {customer.Name}");
             database.Customers = customers;            
 
             try
             {
                 await _databaseRepository.SaveDatabase(database);
+                _logger.LogDebug($"Customer {customer} updated in the database");
                 return customer;
             }
             catch (Exception e)
